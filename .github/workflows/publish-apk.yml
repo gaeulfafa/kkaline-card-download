@@ -1,0 +1,32 @@
+name: Publish APK for anonymous download
+on:
+  push:
+    branches: [main]
+    paths: ['kkaline-card-autosync.apk','card-autosync-release.json','payload/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify APK and publish immutable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ ! -f kkaline-card-autosync.apk ]; then
+            cat payload/chunk-* | base64 -d > kkaline-card-autosync.apk
+          fi
+          version="$(jq -r .versionName card-autosync-release.json)"
+          expected="$(jq -r .sha256 card-autosync-release.json)"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$expected" =~ ^[a-f0-9]{64}$ ]]
+          echo "$expected  kkaline-card-autosync.apk" | sha256sum -c -
+          tag="card-autosync-v$version"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo 'Release already exists; no overwrite.'
+            exit 0
+          fi
+          gh release create "$tag" kkaline-card-autosync.apk card-autosync-release.json --target "$GITHUB_SHA" --title "깔이네 카드 자동등록 v$version" --notes 'Android 전용. 설치 후 본인 가계부 계정 로그인 필요. 테스트판은 서명 차이로 기존 APK 삭제 후 설치가 필요할 수 있습니다.' --latest
