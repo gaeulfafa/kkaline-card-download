@@ -1,0 +1,8 @@
+{
+  "versionCode": 4,
+  "versionName": "0.2.2",
+  "releaseUrl": "https://github.com/gaeulfafa/kkaline-card-download/releases/tag/card-autosync-v0.2.2",
+  "signing": "debug",
+  "sha256": "e019666188e1a163176c3b903ee3bcb6552bd3793578af2de1ac69710a20b92c",
+  "downloadUrl": "https://github.com/gaeulfafa/kkaline-card-download/releases/download/card-autosync-v0.2.2/kkaline-card-autosync.apk"
+}
